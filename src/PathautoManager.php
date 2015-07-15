@@ -490,6 +490,15 @@ class PathautoManager implements PathautoManagerInterface {
       }
     }
 
+    // If the entity's module's routes haven't been stored in the router table
+    // yet, calling getInternalPath on that entity will cause an exception to be
+    // thrown. Check for that, and if it happens, rebuild the routes and go on.
+    try {
+      $entity->urlInfo()->getInternalPath();
+    }
+    catch(\Exception $e) {
+      \Drupal::service('router.builder')->rebuild();
+    }
     $result = $this->createAlias(
       $type, $op, '/' . $entity->urlInfo()->getInternalPath(), array($type => $entity), $bundle, $options['language']);
 
